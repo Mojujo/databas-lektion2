@@ -13,4 +13,8 @@ public class loggerUtil {
     public static void logError(String message, Throwable throwable) {
         logger.error(message, throwable);
     }
+
+    public static void logWarning(String s) {
+        logger.warn(s);
+    }
 }

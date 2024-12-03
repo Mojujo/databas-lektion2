@@ -10,12 +10,11 @@ import java.util.List;
 public class PersonDAOImpl implements PersonDAO {
 
     @Override
-    public void insertPerson(Person person) {
-        String sql = "INSERT INTO LEKTION2.PERSON (first_name, last_name, gender, dob, income) " +
+    public void insertPerson(Person person, Connection conn) {
+        String sql = "INSERT INTO PERSON (first_name, last_name, gender, dob, income) " +
                      "VALUES (?,?,?,?,?)";
 
-        try (Connection conn = JDBCUtil.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             statementParameter(person, pstmt);
             pstmt.executeUpdate();
@@ -26,17 +25,15 @@ public class PersonDAOImpl implements PersonDAO {
     }
 
     @Override
-    public void updatePerson(Person person) {
-        String sql = "UPDATE LEKTION2.PERSON SET first_name = ?, last_name = ?, gender = ?, dob = ?, income = ? " +
+    public void updatePerson(Person person, Connection conn) {
+        String sql = "UPDATE PERSON SET first_name = ?, last_name = ?, gender = ?, dob = ?, income = ? " +
                      "WHERE person_id = ?";
 
-        try (Connection conn = JDBCUtil.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             statementParameter(person, pstmt);
             pstmt.setInt(6, person.getPersonId());
             pstmt.executeUpdate();
-            JDBCUtil.commit(conn);
 
         } catch (SQLException e) {
             loggerUtil.logError("Error updating person", e);
@@ -57,13 +54,14 @@ public class PersonDAOImpl implements PersonDAO {
 
     @Override
     public void deletePerson(int id) {
-        String sql = "DELETE FROM LEKTION2.PERSON WHERE person_id = ?";
+        String sql = "DELETE FROM PERSON WHERE person_id = ?";
 
         try (Connection conn = JDBCUtil.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, id);
             pstmt.executeUpdate();
+            conn.commit();
         } catch (SQLException e) {
             loggerUtil.logError("Error deleting person", e);
         }
@@ -71,7 +69,7 @@ public class PersonDAOImpl implements PersonDAO {
 
     @Override
     public Person getPerson(int id) {
-        String sql = "SELECT * FROM LEKTION2.PERSON WHERE person_id = ?";
+        String sql = "SELECT * FROM PERSON WHERE person_id = ?";
         Person person = null;
         try (Connection conn = JDBCUtil.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -98,7 +96,7 @@ public class PersonDAOImpl implements PersonDAO {
     @Override
     public List<Person> getPersons() throws SQLException {
         List<Person> persons = new ArrayList<>();
-        String sql = "SELECT * FROM LEKTION2.PERSON";
+        String sql = "SELECT * FROM PERSON";
         try (Connection conn = JDBCUtil.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);
              ResultSet rs = pstmt.executeQuery()) {
