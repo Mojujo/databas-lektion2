@@ -6,7 +6,18 @@ import java.sql.*;
 import java.util.Properties;
 
 public class JDBCUtil {
-    private static Properties properties = new Properties();
+    private static final Properties properties = new Properties();
+
+    static {
+        try (InputStream input = JDBCUtil.class.getClassLoader().getResourceAsStream("application.properties")) {
+            if (input == null) {
+                throw new IOException("Unable to find application.properties");
+            }
+            properties.load(input);
+        } catch (IOException e) {
+            loggerUtil.logError("Unable to load application.properties", e);
+        }
+    }
 
     public static Connection getConnection() throws SQLException {
         Driver hsqlDriver = new org.hsqldb.jdbcDriver();
@@ -35,7 +46,6 @@ public class JDBCUtil {
         }
     }
 
-
     public static void rollback(Connection conn) {
         try {
             if (conn != null) {
@@ -43,17 +53,6 @@ public class JDBCUtil {
             }
         } catch (SQLException e) {
             loggerUtil.logError("Error rolling back", e);
-        }
-    }
-
-    static {
-        try (InputStream input = JDBCUtil.class.getClassLoader().getResourceAsStream("application.properties")) {
-            if (input == null) {
-                throw new IOException("Unable to find application.properties");
-            }
-            properties.load(input);
-        } catch (IOException e) {
-            loggerUtil.logError("Unable to load application.properties", e);
         }
     }
 }

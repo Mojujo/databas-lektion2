@@ -61,7 +61,7 @@ public class PersonDAOImpl implements PersonDAO {
 
             pstmt.setInt(1, id);
             pstmt.executeUpdate();
-            conn.commit();
+
         } catch (SQLException e) {
             loggerUtil.logError("Error deleting person", e);
         }
